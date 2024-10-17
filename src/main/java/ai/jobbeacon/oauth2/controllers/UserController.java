@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    @GetMapping("/user/{id}")
-    public String hello(@PathVariable("id") String id) {
+    @GetMapping("/users/{username}")
+    public String hello(@PathVariable("username") String id) {
         return String.format("Hello, User %s!", id);
     }
 }

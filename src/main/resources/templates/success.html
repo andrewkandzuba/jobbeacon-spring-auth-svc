@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Successful Registration!</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="registration-container">
+    <h5>Welcome to JobBeacon!</h5>
+    <div class="message" th:if="${message}" th:text="${message}"></div>
+    <div><a class="link" th:href="@{/login}">Please Sign In!</a></div>
+</div>
+</body>
+</html>

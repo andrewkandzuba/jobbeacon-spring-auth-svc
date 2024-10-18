@@ -20,14 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @Validated
 public class AuthController {
-
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-
     @Autowired
     private AuthService authService;
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest userLogin) throws IllegalAccessException {
         Authentication authentication =
@@ -39,7 +36,7 @@ public class AuthController {
 
         authentication.getPrincipal();
 
-        log.info("Token requested for user :{}", authentication.getAuthorities());
+        log.debug("Token requested for user :{}", authentication.getAuthorities());
         String token = authService.generateToken(authentication);
 
         AuthDTO.Response response = new AuthDTO.Response("User logged in successfully", token);

@@ -1,5 +1,6 @@
 package ai.jobbeacon.oauth2.config;
 
+import ai.jobbeacon.oauth2.controllers.LoginAuthenticationSuccessHandler;
 import ai.jobbeacon.oauth2.services.JpaUserDetailsService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -19,6 +20,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,6 +40,8 @@ public class SecurityConfig {
     private RsaKeyConfigProperties rsaKeyConfigProperties;
     @Autowired
     private JpaUserDetailsService userDetailsService;
+    @Autowired
+    private LoginAuthenticationSuccessHandler loginAuthenticationSuccessHandler;
 
     @Bean
     public AuthenticationManager authManager() {
@@ -54,15 +58,24 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/error/**").permitAll();
-                    auth.requestMatchers("/api/auth/**").permitAll();
+                    auth.requestMatchers("/api/auth/**", "/register").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                //.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt((jwt) -> jwt.decoder(jwtDecoder())))
                 .userDetailsService(userDetailsService)
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler(loginAuthenticationSuccessHandler)
+                        .permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.debug(true)
+                .ignoring()
+                .requestMatchers("/css/**", "/js /**", "/img/**", "/lib/**", "/favicon.ico");
     }
 
     @Bean

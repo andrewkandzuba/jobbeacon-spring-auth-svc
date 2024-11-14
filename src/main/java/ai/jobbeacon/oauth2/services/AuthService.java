@@ -36,10 +36,12 @@ public class AuthService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(10, ChronoUnit.HOURS))
+                .expiresAt(now.plus(15, ChronoUnit.MINUTES))
                 .subject(authentication.getName())
                 .claim("scope", scope)
                 .build();
+
+        log.debug("Token generated for user :{}", authentication.getName());
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }

@@ -24,7 +24,6 @@ public class ProfileController {
 
         // Add user to model
         model.addAttribute("username", user.getUsername());
-        model.addAttribute("email", user.getEmail());
 
         return "profile";
     }

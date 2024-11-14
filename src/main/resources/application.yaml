@@ -2,11 +2,6 @@ spring:
   application:
     name: @project.artifactId@
     version: @project.version@
-  datasource:
-    url: jdbc:postgresql://localhost:5432/spring-security
-    username:
-    password:
-    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -17,6 +12,11 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    baseline-on-migrate: true
 
 server:
   port: 8080

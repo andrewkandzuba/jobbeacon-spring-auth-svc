@@ -113,7 +113,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- MySql -->
+        <!-- PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

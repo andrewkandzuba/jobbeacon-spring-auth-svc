@@ -6,8 +6,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "user_name"),
-        @UniqueConstraint(columnNames = "email")
+        @UniqueConstraint(columnNames = "user_name")
 })
 public class User {
     @Id
@@ -18,18 +17,14 @@ public class User {
     @NonNull
     private String username;
     @NonNull
-    @Column(name = "email", unique = true)
-    private String email;
-    @NonNull
     @JsonIgnore
     private String password;
 
     public User() {}
 
-    public User(String userId, @NonNull String username, @NonNull String email, @NonNull String password) {
+    public User(String userId, @NonNull String username, @NonNull String password) {
         this.userId = userId;
         this.username = username;
-        this.email = email;
         this.password = password;
     }
     public String getUserId() {
@@ -45,13 +40,7 @@ public class User {
     public void setUsername(@NonNull String username) {
         this.username = username;
     }
-    @NonNull
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(@NonNull String email) {
-        this.email = email;
-    }
+
     @NonNull
     public String getPassword() {
         return password;
@@ -61,6 +50,6 @@ public class User {
     }
     @Override
     public String toString() {
-        return STR."User{userId='\{userId}\{'\''}, username='\{username}\{'\''}, email='\{email}\{'\''}, password='\{password}\{'\''}\{'}'}";
+        return STR."User{userId='\{userId}\{'\''}, username='\{username}\{'\''}, password='\{password}\{'\''}\{'}'}";
     }
 }

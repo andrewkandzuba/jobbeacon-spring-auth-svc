@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+        max-lifetime: 120000
+        idle-timeout: 30000
+        maximum-pool-size: 100
+        minimum-idle: 2
+        leak-detection-threshold: 1000

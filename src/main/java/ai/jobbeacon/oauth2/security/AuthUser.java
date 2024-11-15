@@ -26,7 +26,6 @@ public class AuthUser extends User implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // @ToDo: Replace this with managed roles
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(user.getGrantedAuthority()));
     }
 }

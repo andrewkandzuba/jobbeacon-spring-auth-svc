@@ -3,53 +3,57 @@ package ai.jobbeacon.oauth2.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.micrometer.common.lang.NonNull;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 @Entity
-@Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "user_name")
-})
+@Table(name = "T_USER", uniqueConstraints = {@UniqueConstraint(columnNames = "user_name")})
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true)
-    private String userId;
+    private Long userId;
+
     @Column(name = "user_name", unique = true)
-    @NonNull
+    @NotNull
     private String username;
-    @NonNull
+
+    @Column(nullable = false)
     @JsonIgnore
+    @NotNull
     private String password;
+
+    @Column(name = "granted_authority")
+    @ColumnDefault("ROLE_USER")
+    @Generated(event = EventType.INSERT)
+    private String grantedAuthority;
 
     public User() {}
 
-    public User(String userId, @NonNull String username, @NonNull String password) {
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-    }
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
-    @NonNull
     public String getUsername() {
         return username;
     }
     public void setUsername(@NonNull String username) {
         this.username = username;
     }
-
-    @NonNull
     public String getPassword() {
         return password;
     }
     public void setPassword(@NonNull String password) {
         this.password = password;
     }
-    @Override
-    public String toString() {
-        return STR."User{userId='\{userId}\{'\''}, username='\{username}\{'\''}, password='\{password}\{'\''}\{'}'}";
+    public String getGrantedAuthority() {
+        return grantedAuthority;
+    }
+    public void setGrantedAuthority(@NonNull String grantedAuthority) {
+        this.grantedAuthority = grantedAuthority;
     }
 }

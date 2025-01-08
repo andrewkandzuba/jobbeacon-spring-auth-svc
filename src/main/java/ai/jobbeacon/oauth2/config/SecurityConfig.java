@@ -1,7 +1,6 @@
 package ai.jobbeacon.oauth2.config;
 
 import ai.jobbeacon.oauth2.controllers.LoginAuthenticationSuccessHandler;
-import ai.jobbeacon.oauth2.services.JpaUserDetailsService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -10,7 +9,6 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,28 +27,51 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
-    @Autowired
-    private RsaKeyConfigProperties rsaKeyConfigProperties;
-    @Autowired
-    private JpaUserDetailsService userDetailsService;
-    @Autowired
-    private LoginAuthenticationSuccessHandler loginAuthenticationSuccessHandler;
+
+    private final RsaKeyConfigProperties rsaKeyConfigProperties;
+    private final LoginAuthenticationSuccessHandler loginAuthenticationSuccessHandler;
+    private final DataSource dataSource;
+
+    public SecurityConfig(RsaKeyConfigProperties rsaKeyConfigProperties,
+                          LoginAuthenticationSuccessHandler loginAuthenticationSuccessHandler,
+                          DataSource dataSource) {
+        this.rsaKeyConfigProperties = rsaKeyConfigProperties;
+        this.loginAuthenticationSuccessHandler = loginAuthenticationSuccessHandler;
+        this.dataSource = dataSource;
+    }
+
+    @Bean
+    public UserDetailsManager userDetailsService() {
+        JdbcUserDetailsManager manager = new JdbcUserDetailsManager();
+        manager.setDataSource(dataSource);
+        return manager;
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authManager() {
         var authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(authProvider);
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
@@ -64,7 +85,7 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt((jwt) -> jwt.decoder(jwtDecoder())))
-                .userDetailsService(userDetailsService)
+                .userDetailsService(userDetailsService())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(loginAuthenticationSuccessHandler)
@@ -88,13 +109,7 @@ public class SecurityConfig {
     @Bean
     JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(rsaKeyConfigProperties.publicKey()).privateKey(rsaKeyConfigProperties.privateKey()).build();
-
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

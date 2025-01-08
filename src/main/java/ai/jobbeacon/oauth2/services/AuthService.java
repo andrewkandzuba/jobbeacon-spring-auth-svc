@@ -1,12 +1,9 @@
 package ai.jobbeacon.oauth2.services;
 
-import ai.jobbeacon.oauth2.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -19,12 +16,13 @@ import java.util.stream.Collectors;
 @Service
 public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
-    @Autowired
-    private JwtEncoder jwtEncoder;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserRepository userRepository;
+
+    private final JwtEncoder jwtEncoder;
+
+    public AuthService(JwtEncoder jwtEncoder) {
+        this.jwtEncoder = jwtEncoder;
+    }
+
     public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
 

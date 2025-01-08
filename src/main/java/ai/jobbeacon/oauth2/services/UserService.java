@@ -1,28 +1,37 @@
 package ai.jobbeacon.oauth2.services;
 
-import ai.jobbeacon.oauth2.domain.User;
-import ai.jobbeacon.oauth2.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserRepository userRepository;
+    private final UserDetailsManager userDetailsManager;
+    private final PasswordEncoder passwordEncoder;
 
-    public User registerUser(User user) {
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        return userRepository.save(user);
+    public UserService(UserDetailsManager userDetailsManager,
+                       PasswordEncoder passwordEncoder) {
+        this.userDetailsManager = userDetailsManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public void registerUser(UserDetails userDetails) {
+        userDetailsManager.createUser(
+                new User(
+                        userDetails.getUsername(),
+                        passwordEncoder.encode(userDetails.getPassword()),
+                        userDetails.getAuthorities()));
+    }
+
+    public UserDetails findByUsername(String username) {
+        //@TODO: Do not fetch password!
+        return userDetailsManager.loadUserByUsername(username);
+    }
+
+    public boolean userExists(String username) {
+        return userDetailsManager.userExists(username);
     }
 }

@@ -4,7 +4,6 @@ import ai.jobbeacon.oauth2.domain.AuthDTO;
 import ai.jobbeacon.oauth2.services.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,10 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-    @Autowired
-    private AuthService authService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+
+    private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthController(AuthService authService, AuthenticationManager authenticationManager) {
+        this.authService = authService;
+        this.authenticationManager = authenticationManager;
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest userLogin) throws IllegalAccessException {
         Authentication authentication =
@@ -34,6 +38,7 @@ public class AuthController {
                                 userLogin.password()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // @TODO: Do we really need this code?
         authentication.getPrincipal();
 
         log.debug("Token requested for user :{}", authentication.getAuthorities());

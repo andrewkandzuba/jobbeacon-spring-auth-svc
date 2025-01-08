@@ -6,4 +6,10 @@ public class AuthDTO {
 
     public record Response(String message, String token) {
     }
+
+    public record User(String username, String password) {
+        public static User getInstance() {
+            return new User("", "");
+        }
+    }
 }

@@ -1,8 +1,7 @@
 package ai.jobbeacon.oauth2.controllers;
 
-import ai.jobbeacon.oauth2.domain.User;
 import ai.jobbeacon.oauth2.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,17 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/profile")
 public class ProfileController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public ProfileController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/{userName}")
     public String getUser(@PathVariable("userName") String userName, Model model) {
-        // Retrieve user from database using userId
-        User user = userService.findByUsername(userName)
-                .orElseThrow(() -> new IllegalArgumentException(STR."Invalid user name:\{userName}"));
+        // Retrieve user from a database using userId
+        UserDetails userDetails = userService.findByUsername(userName);
 
         // Add user to model
-        model.addAttribute("username", user.getUsername());
+        model.addAttribute("username", userDetails.getUsername());
 
         return "profile";
     }
